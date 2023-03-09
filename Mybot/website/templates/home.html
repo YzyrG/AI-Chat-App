@@ -3,17 +3,18 @@
 
 {% block content %}
 
-<h1>HIHIHII</h1>
 
-<!-- pre标签保证代码行空白区域正常显示, class告诉prism该干活了 -->
+<!-- return code说明用户已使用表单并提交，此时展示提交后的页面 -->
+{% if code %}
+<!-- pre标签保证代码行空白区域正常显示--> 
 <pre>
-<code class="line-numbers language-python">
-if name == "SARA":
-    print("HI")
-else:
-    print("Get out!")
+<!-- class告诉prism该干活了,显示行数以及对应语言高亮效果 -->
+<code class="line-numbers language-{{ language }}">
+{{code}}
+
 </code>
 </pre>
+
 <br/><br/>
 
 <!--添加表单以实现用户与表单互动-->
@@ -24,16 +25,16 @@ else:
 
     <!-- 代码区域 -->
     <div class="mb-3">
-        <textarea class="form-control" name="code" placeholder="Let A.I. fix my code!" rows="3"></textarea>
+        <textarea class="form-control" name="code" placeholder="Let A.I. fix my code!" rows="5"></textarea>
     </div>
 
     <!-- 选择语言 -->
-    <select class="form-select" aria-label="Default select example">
+    <select class="form-select" name="language">
         <option selected>Select Programming Language</option>
         <!-- 使用由views.py传来的language list -->
-        {% for language in language_list %}
+        {% for lang in language_list %}
 
-        <option value="{{language}}">{{language}}</option>
+        <option value="{{ lang }}">{{ lang }}</option>
 
         {% endfor %}
     </select>
@@ -42,6 +43,54 @@ else:
     <button type="submit" class="btn btn-primary">Submit</button>
 
 </form>
+
+
+
+
+
+<!-- 没有return code说明这是第一次进该页面，展示原始页面 -->
+{% else %}
+
+<!-- pre标签保证代码行空白区域正常显示, class告诉prism该干活了 -->
+<pre>
+<code class="line-numbers language-python">
+if name == "SARA":
+    print("HI")
+else:
+    print("Get out!")
+    
+</code>
+</pre>
+<br/><br/>
+
+    <!--添加表单以实现用户与表单互动-->
+    <form method=POST action="{% url 'home' %}">
+
+        <!-- csrf_token是为了防止csrf(跨站请求伪造)，防止黑客盗用你存在网站(cookie)上的账户密码和信息 -->
+        {% csrf_token %}
+
+        <!-- 代码区域 -->
+        <div class="mb-3">
+            <textarea class="form-control" name="code" placeholder="Let A.I. fix my code!" rows="5"></textarea>
+        </div>
+
+        <!-- 选择语言 -->
+        <select class="form-select" name="language">
+            <option selected>Select Programming Language</option>
+            <!-- 使用由views.py传来的language list -->
+            {% for lang in language_list %}
+
+            <option value="{{ lang }}">{{ lang }}</option>
+
+            {% endfor %}
+        </select>
+        <br/>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+
+    </form>
+
+{% endif %}
 
 
 {% endblock %}
