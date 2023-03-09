@@ -1,4 +1,4 @@
-<!--使用base.html样式-->
+<!-- 使用base.html样式 -->
 {% extends 'base.html' %}
 
 {% block content %}
@@ -6,7 +6,7 @@
 
 <!-- return code说明用户已使用表单并提交，此时展示提交后的页面 -->
 {% if code %}
-<!-- pre标签保证代码行空白区域正常显示--> 
+<!-- pre标签保证代码行空白区域正常显示 --> 
 <pre>
 <!-- class告诉prism该干活了,显示行数以及对应语言高亮效果 -->
 <code class="line-numbers language-{{ language }}">
@@ -25,7 +25,8 @@
 
     <!-- 代码区域 -->
     <div class="mb-3">
-        <textarea class="form-control" name="code" placeholder="Let A.I. fix my code!" rows="5"></textarea>
+        <!-- 用户未选择language提交后给出提示，并将用户之前编辑的code仍显示出来，否则前功尽弃了就 -->
+        <textarea class="form-control" name="code" placeholder="Let A.I. fix my code!" rows="5">{{ code }}</textarea>
     </div>
 
     <!-- 选择语言 -->
@@ -58,12 +59,12 @@ if name == "SARA":
     print("HI")
 else:
     print("Get out!")
-    
+
 </code>
 </pre>
 <br/><br/>
 
-    <!--添加表单以实现用户与表单互动-->
+    <!-- 添加表单以实现用户与表单互动, 提交后将数据发送到urls文件中url名为‘name’的path处理 -->
     <form method=POST action="{% url 'home' %}">
 
         <!-- csrf_token是为了防止csrf(跨站请求伪造)，防止黑客盗用你存在网站(cookie)上的账户密码和信息 -->
@@ -78,9 +79,9 @@ else:
         <select class="form-select" name="language">
             <option selected>Select Programming Language</option>
             <!-- 使用由views.py传来的language list -->
-            {% for lang in language_list %}
+            {% for language in language_list %}
 
-            <option value="{{ lang }}">{{ lang }}</option>
+            <option value="{{ language }}">{{ language }}</option>
 
             {% endfor %}
         </select>

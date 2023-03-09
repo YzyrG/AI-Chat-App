@@ -1,4 +1,5 @@
 {% load static %}
+
 <!-- 使用get bootstrap的html模板 -->
 <!doctype html>
 <html lang="en">
@@ -16,6 +17,16 @@
         {% include 'navbar.html' %}
         <div class="container">
             <br/>
+            <!-- 错误提示 -->
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Hold on!</strong> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+
             {% block content %}
             {% endblock %}
         </div>
