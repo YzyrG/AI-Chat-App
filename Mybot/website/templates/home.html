@@ -5,7 +5,7 @@
 
 <h1>HIHIHII</h1>
 
-<!-- pre标签保证代码行空白区域显示, class告诉prism该干活了 -->
+<!-- pre标签保证代码行空白区域正常显示, class告诉prism该干活了 -->
 <pre>
 <code class="line-numbers language-python">
 if name == "SARA":
@@ -16,6 +16,30 @@ else:
 </pre>
 <br/><br/>
 
+<!--添加表单以实现用户与表单互动-->
+<form method=POST action="{% url 'home' %}">
+
+    <!-- csrf_token是为了防止csrf(跨站请求伪造)，防止黑客盗用你存在网站(cookie)上的账户密码和信息 -->
+    {% csrf_token %}
+
+    <!-- 代码区域 -->
+    <div class="mb-3">
+        <textarea class="form-control" name="code" placeholder="Let A.I. fix my code!" rows="3"></textarea>
+    </div>
+
+    <!-- 选择语言 -->
+    <select class="form-select" aria-label="Default select example">
+        <option selected>select a language here</option>
+        <option value="1">Python</option>
+        <option value="2">C</option>
+        <option value="3">Java</option>
+        <option value="4">C++</option>
+    </select>
+    <br/>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+</form>
 
 
 {% endblock %}
