@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib import messages
 
+
 def home(request):
 
     # 用户可选择的编程语言list
@@ -11,7 +12,7 @@ def home(request):
         code = request.POST['code']
         language = request.POST['language']
 
-        # 若用户未选择language则给出提示
+        # 若用户未选择language就提交则给出提示
         if language == 'Select Programming Language':
             messages.success(request, "You should choose a programming language...")
             # 仍然要返回code，否则用户之前写的代码全没了会生气，不太友好
