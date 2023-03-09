@@ -29,11 +29,13 @@ else:
 
     <!-- 选择语言 -->
     <select class="form-select" aria-label="Default select example">
-        <option selected>select a language here</option>
-        <option value="1">Python</option>
-        <option value="2">C</option>
-        <option value="3">Java</option>
-        <option value="4">C++</option>
+        <option selected>Select Programming Language</option>
+        <!-- 使用由views.py传来的language list -->
+        {% for language in language_list %}
+
+        <option value="{{language}}">{{language}}</option>
+
+        {% endfor %}
     </select>
     <br/>
 
