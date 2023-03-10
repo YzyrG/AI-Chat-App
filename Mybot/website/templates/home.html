@@ -4,64 +4,65 @@
 {% block content %}
 
 
-<!-- return code说明用户已使用表单并提交，此时展示提交后的页面 -->
-{% if code %}
-<!-- pre标签保证代码行空白区域正常显示 --> 
-<pre>
-<!-- class告诉prism该干活了,显示行数以及对应语言高亮效果 -->
-<code class="line-numbers language-{{ language }}">
-{{code}}
+<!-- return answer说明用户已正确填写表单并提交，此时展示提交处理后的页面 -->
+{% if answer %}
 
-</code>
-</pre>
+    <!--添加表单以实现用户与表单互动-->
+    <form method=POST action="{% url 'home' %}">
 
-<br/><br/>
+        <!-- csrf_token是为了防止csrf(跨站请求伪造)，防止黑客盗用你存在网站(cookie)上的账户密码和信息 -->
+        {% csrf_token %}
+        <div class="mb-3">
 
-<!--添加表单以实现用户与表单互动-->
-<form method=POST action="{% url 'home' %}">
+            <!-- class告诉prism该干活了,显示行数以及对应语言高亮效果 -->
+            <!-- 此时code区域显示Chatsonic的回复 -->
+            <textarea class="form-control" rows="10" readonly="readonly" wrap="hard">您的问题：{{ question }}&#10;ChatSonic：{{ answer }}</textarea>
 
-    <!-- csrf_token是为了防止csrf(跨站请求伪造)，防止黑客盗用你存在网站(cookie)上的账户密码和信息 -->
-    {% csrf_token %}
+        </div>
+        <br/><br/>
 
-    <!-- 代码区域 -->
-    <div class="mb-3">
-        <!-- 用户未选择language提交后给出提示，并将用户之前编辑的code仍显示出来，否则前功尽弃了就 -->
-        <textarea class="form-control" name="code" placeholder="Let A.I. fix my code!" rows="5">{{ code }}</textarea>
-    </div>
+         <!-- 选择任务 -->
+        <div class="input-group mb-3">
 
-    <!-- 选择语言 -->
-    <select class="form-select" name="language">
-        <option selected>Select Programming Language</option>
-        <!-- 使用由views.py传来的language list -->
-        {% for lang in language_list %}
+          <label class="input-group-text">任务</label>
+          <select class="form-select" name="task">
+                <!-- 提交处理后的页面仍保持上一次的任务 -->
+                {% if task == '聊天' %}
+                <option>选择任务和A.I. Bot对话吧！</option>
+                <option value="聊天" selected>聊天</option>
+                <option value="写作">写作</option>
+                {% elif task == '写作' %}
+                <option>选择任务和A.I. Bot对话吧！</option>
+                <option value="聊天">聊天</option>
+                <option value="写作" selected>写作</option>
+                {% else %}
+                <option selected>选择任务和A.I. Bot对话吧！</option>
+                <option value="聊天">聊天</option>
+                <option value="写作">写作</option>
+                {% endif %}
+          </select>
 
-        <option value="{{ lang }}">{{ lang }}</option>
+        </div>
 
-        {% endfor %}
-    </select>
-    <br/>
+        <!-- 需求输入区域 -->
+         <div class="input-group">
+                <span class="input-group-text">输入</span>
+                <!-- 提交后清空输入框  -->
+                <textarea class="form-control" name="question" aria-label="With textarea" required></textarea>
+        </div>
+        <br/>
 
-    <button type="submit" class="btn btn-success">Submit</button>
+        <div class="d-grid gap-2 col-6 mx-auto">
+            <button class="btn btn-success" type="submit">提交</button>
+        </div>
 
-</form>
+    </form>
 
 
 
-
-
-<!-- 没有return code说明这是第一次进该页面，展示原始页面 -->
+<!-- 没有return answer说明这是第一次进该页面，展示原始页面 -->
 {% else %}
 
-<!-- pre标签保证代码行空白区域正常显示, class告诉prism该干活了 -->
-<pre>
-<code class="line-numbers language-python">
-if name == "SARA":
-    print("HI")
-else:
-    print("Get out!")
-
-</code>
-</pre>
 <br/><br/>
 
     <!-- 添加表单以实现用户与表单互动, 提交后将数据发送到urls文件中url名为‘name’的path处理 -->
@@ -70,29 +71,40 @@ else:
         <!-- csrf_token是为了防止csrf(跨站请求伪造)，防止黑客盗用你存在网站(cookie)上的账户密码和信息 -->
         {% csrf_token %}
 
-        <!-- 代码区域 -->
-        <div class="mb-3">
-            <textarea class="form-control" name="code" placeholder="Let A.I. fix my code!" rows="5"></textarea>
+         <!-- 选择任务 -->
+        <div class="input-group mb-3">
+
+          <label class="input-group-text" for="inputGroupSelect02">任务</label>
+          <select class="form-select" id="inputGroupSelect02" name="task">
+                <option selected>选择任务和A.I. Bot对话吧！</option>
+                <option value="聊天">聊天</option>
+                <option value="写作">写作</option>
+          </select>
+
         </div>
 
-        <!-- 选择语言 -->
-        <select class="form-select" name="language">
-            <option selected>Select Programming Language</option>
-            <!-- 使用由views.py传来的language list -->
-            {% for language in language_list %}
-
-            <option value="{{ language }}">{{ language }}</option>
-
-            {% endfor %}
-        </select>
         <br/>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <!-- 需求输入区域 -->
+        <div class="input-group">
+            <span class="input-group-text">输入</span>
+            <!--  若question有值说明用户在没有选择任务的情况下提交了表单，导致没有返回answer,此时仍显示用户之前输入的内容  -->
+            {% if question %}
+            <textarea class="form-control" name="question" aria-label="With textarea">{{ question }}</textarea>
+            <!--  若question无值，则说明用户是首次访问该页面，显示原始样式 -->
+            {% else %}
+            <textarea class="form-control" name="question" aria-label="With textarea" required></textarea>
+            {% endif %}
+        </div>
+        <br/>
+
+        <div class="d-grid gap-2 col-6 mx-auto">
+            <button class="btn btn-success" type="submit">提交</button>
+        </div>
 
     </form>
 
 {% endif %}
-
 
 {% endblock %}
 
