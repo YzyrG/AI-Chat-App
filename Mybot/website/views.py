@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib import messages
 import requests
 from .models import PreviousChat
@@ -80,5 +80,12 @@ def home(request):
 
 def history(request):
     history_data = PreviousChat.objects.all()
-
+    print(history_data)
     return render(request, 'history.html', {"history_data": history_data})
+
+
+def delete_history(request, history_id):
+    delete_data = PreviousChat.objects.get(pk=history_id)
+    delete_data.delete()
+    messages.success(request, "删除成功！")
+    return redirect('history')
