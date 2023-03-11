@@ -39,7 +39,11 @@
                 <!-- 提交处理后的页面仍保持上一次的任务 -->
                 {% if task == '陪我聊天' %}
                 <option>选择任务和A.I. Bot对话吧！</option>
-                <option value="陪我聊天" selected>陪我聊天</option>
+                <option value="继续聊天" selected>继续聊天</option>
+                <option value="帮我写作">帮我写作</option>
+                {% elif task == '继续聊天' %}
+                <option>选择任务和A.I. Bot对话吧！</option>
+                <option value="继续聊天" selected>继续聊天</option>
                 <option value="帮我写作">帮我写作</option>
                 {% elif task == '帮我写作' %}
                 <option>选择任务和A.I. Bot对话吧！</option>

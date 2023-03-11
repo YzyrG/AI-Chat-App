@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, redirect
 from django.contrib import messages
 import requests
@@ -19,7 +20,8 @@ def home(request):
         # 若用户选择陪我聊天任务并提交, 则调用chatsonic api处理表单数据
         elif task == '陪我聊天':
             try:
-
+                # 开始新的一次聊天时历史数据为空list
+                history_data = []
                 # 以下参考Writesonic官方文档调用ChatSonic api
                 url = "https://api.writesonic.com/v2/business/content/chatsonic?engine=premium&language=zh"
                 key = os.getenv("WRITESONIC_API_KEY")
@@ -28,7 +30,7 @@ def home(request):
                     "enable_google_results": "true",
                     "enable_memory": True,
                     "input_text": question,
-                    "history_data": []
+                    "history_data": history_data
                 }
 
                 headers = {
@@ -38,6 +40,7 @@ def home(request):
                 }
 
                 response = requests.post(url, json=payload, headers=headers)
+
                 # 将chatsonic返回的结果转换为dict类型
                 response = eval(response.text)
                 # 获取返回的message, 即ChatSonic的回复
@@ -52,17 +55,81 @@ def home(request):
                     "is_sent": False,
                     "message": answer
                 }
+                # 将本次聊天数据存入历史数据中
+                history_data.append(previous_user_chat)
+                history_data.append(previous_sonic_chat)
+
+                # 使用json将list转换为json字符串
+                history_str = json.dumps(history_data)
 
                 # 保存到数据库
-                data = PreviousChat(question=question, answer=answer)
+                data = PreviousChat(question=question, answer=answer, history_str=history_str)
                 data.save()
 
-                return render(request, 'home.html', {
-                    'task': task,
-                    'question': question,
-                    'answer': answer,
-                })
+                return render(request, 'home.html', {'task': task, 'question': question, 'answer': answer})
 
+            except Exception as e:
+                # 出错时给answer传e, 使回复区域显示error
+                return render(request, 'home.html', {'question': question, 'answer': e})
+
+        # 若用户选择继续聊天任务并提交, 则调用chatsonic api处理表单数据
+        elif task == '继续聊天':
+            try:
+
+                # 获取数据库最后一条数据，拿到最新的history_str
+                history_str = PreviousChat.objects.last().history_str
+                print(type(history_str))
+                print(history_str)
+                # 使用json将str转换为list
+                history_data = json.loads(history_str)
+                print(type(history_data))
+                print(history_data)
+
+                # 以下参考Writesonic官方文档调用ChatSonic api
+                url = "https://api.writesonic.com/v2/business/content/chatsonic?engine=premium&language=zh"
+                key = os.getenv("WRITESONIC_API_KEY")
+
+                payload = {
+                    "enable_google_results": "true",
+                    "enable_memory": True,
+                    "input_text": question,
+                    "history_data": history_data
+                }
+
+                headers = {
+                    "accept": "application/json",
+                    "content-type": "application/json",
+                    "X-API-KEY": key
+                }
+
+                response = requests.post(url, json=payload, headers=headers)
+
+                # 将chatsonic返回的结果转换为dict类型
+                response = eval(response.text)
+                # 获取返回的message, 即ChatSonic的回复
+                answer = response['message']
+
+                # 当前的问题和回复作为下一次继续聊天时的历史数据
+                previous_user_chat = {
+                    "is_sent": True,
+                    "message": question
+                }
+                previous_sonic_chat = {
+                    "is_sent": False,
+                    "message": answer
+                }
+                # 将本次聊天数据存入历史数据中
+                history_data.append(previous_user_chat)
+                history_data.append(previous_sonic_chat)
+
+                # 使用json将list转换为json字符串
+                history_str = json.dumps(history_data)
+
+                # 保存到数据库
+                data = PreviousChat(question=question, answer=answer, history_str=history_str)
+                data.save()
+
+                return render(request, 'home.html', {'task': task, 'question': question, 'answer': answer})
             except Exception as e:
                 # 出错时给answer传e, 使回复区域显示error
                 return render(request, 'home.html', {'question': question, 'answer': e})
@@ -80,12 +147,11 @@ def home(request):
 
 def history(request):
     history_data = PreviousChat.objects.all()
-    print(history_data)
     return render(request, 'history.html', {"history_data": history_data})
 
 
 def delete_history(request, history_id):
-    delete_data = PreviousChat.objects.get(pk=history_id)
+    delete_data = PreviousChat.objects.get(id=history_id)
     delete_data.delete()
     messages.success(request, "删除成功！")
     return redirect('history')
