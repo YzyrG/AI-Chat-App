@@ -7,38 +7,48 @@
 <!-- return answer说明用户已正确填写表单并提交，此时展示提交处理后的页面 -->
 {% if answer %}
 
+    <h2>您的问题：{{ question }}</h2>
+    <!-- writesonic 回复框  -->
+    <div class="card">
+          <div class="card-header">
+           A.i.Bot 回复
+          </div>
+          <div class="card-body">
+            <!-- 输入无效字符时提示 -->
+            {% if answer == "invalid syntax (, line 1)" %}
+                <p class="card-text">请输入有意义的文字:)</p>
+            {% else %}
+                <!-- 用safe过滤器解析html -->
+                <p class="card-text">{{ answer | safe }}</p>
+            {% endif %}
+            <br/><br/>
+          </div>
+    </div>
+    <br/><br/>
     <!--添加表单以实现用户与表单互动-->
     <form method=POST action="{% url 'home' %}">
 
         <!-- csrf_token是为了防止csrf(跨站请求伪造)，防止黑客盗用你存在网站(cookie)上的账户密码和信息 -->
         {% csrf_token %}
-        <div class="mb-3">
 
-            <!-- class告诉prism该干活了,显示行数以及对应语言高亮效果 -->
-            <!-- 此时code区域显示Chatsonic的回复 -->
-            <textarea class="form-control" rows="10" readonly="readonly" wrap="hard">您的问题：{{ question }}&#10;ChatSonic：{{ answer }}</textarea>
-
-        </div>
-        <br/><br/>
-
-         <!-- 选择任务 -->
+        <!-- 选择任务 -->
         <div class="input-group mb-3">
 
           <label class="input-group-text">任务</label>
           <select class="form-select" name="task">
                 <!-- 提交处理后的页面仍保持上一次的任务 -->
-                {% if task == '聊天' %}
+                {% if task == '陪我聊天' %}
                 <option>选择任务和A.I. Bot对话吧！</option>
-                <option value="聊天" selected>聊天</option>
-                <option value="写作">写作</option>
-                {% elif task == '写作' %}
+                <option value="陪我聊天" selected>陪我聊天</option>
+                <option value="帮我写作">帮我写作</option>
+                {% elif task == '帮我写作' %}
                 <option>选择任务和A.I. Bot对话吧！</option>
-                <option value="聊天">聊天</option>
-                <option value="写作" selected>写作</option>
+                <option value="陪我聊天">陪我聊天</option>
+                <option value="帮我写作" selected>帮我写作</option>
                 {% else %}
                 <option selected>选择任务和A.I. Bot对话吧！</option>
-                <option value="聊天">聊天</option>
-                <option value="写作">写作</option>
+                <option value="陪我聊天">陪我聊天</option>
+                <option value="帮我写作">帮我写作</option>
                 {% endif %}
           </select>
 
@@ -55,6 +65,7 @@
         <div class="d-grid gap-2 col-6 mx-auto">
             <button class="btn btn-success" type="submit">提交</button>
         </div>
+        <br/><br/>
 
     </form>
 
@@ -62,8 +73,17 @@
 
 <!-- 没有return answer说明这是第一次进该页面，展示原始页面 -->
 {% else %}
-
-<br/><br/>
+    <!-- writesonic 回复框  -->
+    <div class="card">
+          <div class="card-header">
+           A.i.Bot 回复
+          </div>
+          <div class="card-body">
+            <p class="card-text"></p>
+            <br/><br/>
+          </div>
+    </div>
+    <br/><br/>
 
     <!-- 添加表单以实现用户与表单互动, 提交后将数据发送到urls文件中url名为‘name’的path处理 -->
     <form method=POST action="{% url 'home' %}">
@@ -71,14 +91,14 @@
         <!-- csrf_token是为了防止csrf(跨站请求伪造)，防止黑客盗用你存在网站(cookie)上的账户密码和信息 -->
         {% csrf_token %}
 
-         <!-- 选择任务 -->
+        <!-- 选择任务 -->
         <div class="input-group mb-3">
 
           <label class="input-group-text" for="inputGroupSelect02">任务</label>
           <select class="form-select" id="inputGroupSelect02" name="task">
                 <option selected>选择任务和A.I. Bot对话吧！</option>
-                <option value="聊天">聊天</option>
-                <option value="写作">写作</option>
+                <option value="陪我聊天">陪我聊天</option>
+                <option value="帮我写作">帮我写作</option>
           </select>
 
         </div>
