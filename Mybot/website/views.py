@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib import messages
 import requests
+from .models import PreviousChat
 import os
 
 
@@ -52,11 +53,16 @@ def home(request):
                     "message": answer
                 }
 
+                # 保存到数据库
+                data = PreviousChat(question=question, answer=answer)
+                data.save()
+
                 return render(request, 'home.html', {
                     'task': task,
                     'question': question,
                     'answer': answer,
                 })
+
             except Exception as e:
                 # 出错时给answer传e, 使回复区域显示error
                 return render(request, 'home.html', {'question': question, 'answer': e})
@@ -70,3 +76,9 @@ def home(request):
                 return render(request, 'home.html', {'question': question, 'answer': e})
 
     return render(request, 'home.html')
+
+
+def history(request):
+    history_data = PreviousChat.objects.all()
+
+    return render(request, 'history.html', {"history_data": history_data})

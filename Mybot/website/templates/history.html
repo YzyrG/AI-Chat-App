@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if history_data %}
+
+    {% for chat in history_data  %}
+    <div class="card">
+      <div class="card-header">
+        <strong>您的问题：{{ chat.question }}</strong><br>
+      </div>
+      <div class="card-body">
+        <blockquote class="blockquote mb-0">
+          <p><strong>ChatSonic的回复：</strong>{{ chat.answer }}</p><br><br>
+        </blockquote>
+      </div>
+    </div>
+    <br><br>
+    {% endfor %}
+
+{%endif  %}
+
+{% endblock %}
