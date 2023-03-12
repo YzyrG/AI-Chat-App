@@ -1,9 +1,12 @@
 import json
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm
 import requests
 from .models import PreviousChat
 import os
+from django.core.paginator import Paginator
 
 
 def home(request):
@@ -146,8 +149,20 @@ def home(request):
 
 
 def history(request):
+    # 获取历史数据
     history_data = PreviousChat.objects.all()
-    return render(request, 'history.html', {"history_data": history_data})
+
+    # 设置页数, 煤每页展示10条历史数据
+    p = Paginator(PreviousChat.objects.all(), 10)
+    # 拿到所请求的页码
+    page = request.GET.get('page')
+    # 拿到所请求页码的页面内容，return时返回
+    pages = p.get_page(page)
+
+    # 获取页数,有多少页就有多少个字符a，便于在history page遍历
+    nums = "a" * pages.paginator.num_pages
+
+    return render(request, 'history.html', {"history_data": history_data, 'pages': pages, 'nums': nums})
 
 
 def delete_history(request, history_id):
