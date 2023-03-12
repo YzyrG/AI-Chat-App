@@ -152,7 +152,7 @@ def home(request):
 
 def history(request):
     # 获取历史数据
-    history_data = PreviousChat.objects.filter(owner=request.user).order_by('-created_time')
+    history_data = PreviousChat.objects.filter(owner=request.user.id).order_by('-created_time')
 
     # 设置页数, 煤每页展示10条历史数据
     p = Paginator(history_data, 10)
