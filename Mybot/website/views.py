@@ -151,7 +151,7 @@ def home(request):
 
 
 def history(request):
-    # 获取历史数据
+    # 获取历史数据，注意owner参数需要user.id作为实参
     history_data = PreviousChat.objects.filter(owner=request.user.id).order_by('-created_time')
 
     # 设置页数, 煤每页展示10条历史数据
