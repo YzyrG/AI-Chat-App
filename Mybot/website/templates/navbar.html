@@ -1,20 +1,41 @@
-<!--使用get bootstrap的html模板-->
+<!--使用bootstrap的html模板-->
 
 <nav class="navbar navbar-expand-lg bg-success">
   <div class="container-fluid">
-    <a class="navbar-brand" href="{% url 'home' %}" style="color:#FFCCE5">A.I. Bot</a>
+
+    <a class="navbar-brand" href="{% url 'home' %}" style="color:#FFFFFF">A.I. Bot</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
+
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'history' %}" style="color:#FFCCE5">Chat history</a>
+          <a class="nav-link active" aria-current="page" href="{% url 'history' %}" style="color:#FFFFFF">Chat history</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#" style="color:#FFCCE5">about</a>
+          <a class="nav-link active" aria-current="page" href="#" style="color:#FFFFFF">Write history</a>
         </li>
       </ul>
+
     </div>
+
+    {% if user.is_authenticated %}
+      <!-- 已验证说明用户已登录，显示logout按钮 -->
+      <ul class="nav justify-content-end">
+        <li class="nav-item">
+          <a class="nav-link disabled" href="{% url 'logout' %}" style="color:#FFFFFF">Logout</a>
+        </li>
+    {% else %}
+      <!-- 已验证说明用户未登录，显示register、login按钮 -->
+        <li class="nav-item">
+        <a class="nav-link disabled" href="{% url 'register' %}" style="color:#FFFFFF">Register</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link disabled" href="{% url 'login' %}" style="color:#FFFFFF">Login</a>
+        </li>
+      </ul>
+    {% endif %}
   </div>
 </nav>

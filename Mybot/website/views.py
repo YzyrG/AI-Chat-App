@@ -1,12 +1,14 @@
-import json
+from .models import PreviousChat
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm
-import requests
-from .models import PreviousChat
-import os
 from django.core.paginator import Paginator
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from .forms import SignUpForm
+import requests
+import os
+import json
 
 
 def home(request):
@@ -170,3 +172,46 @@ def delete_history(request, history_id):
     delete_data.delete()
     messages.success(request, "删除成功！")
     return redirect('history')
+
+
+# 以下用户注册登录验证功能参考django官方文档
+def login_user(request):
+    # 获取表单数据
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+
+        # 验证用户名及密码
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, " (｡･∀･)ﾉﾞ嗨， 您已成功登录！")
+            return redirect('home')
+        else:
+            messages.success(request, " (っ °Д °;)っ 登录失败！请重新登录。")
+            return redirect('home')
+    else:
+        return render(request, 'home.html')
+
+
+def logout_user(request):
+    logout(request)
+    messages.success(request, "您已退出登录，Bye！(●'◡'●)")
+    return redirect('home')
+
+
+def register_user(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            messages.success(request, "您已注册成功！")
+            return redirect('home')
+    else:
+        form = SignUpForm()
+
+    return render(request, 'register.html', {'form': form})

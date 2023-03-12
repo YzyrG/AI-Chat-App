@@ -1,0 +1,33 @@
+{% extends  'base.html' %}
+{% block content %}
+
+<h1 class="text-center">Register</h1>
+<br>
+
+<div class="col-md-6 offset-md-3">
+    <form method='POST' action="{% url 'register' %}">
+        <!-- csrf_token是为了防止csrf(跨站请求伪造)，防止黑客盗用你存在网站(cookie)上的账户密码和信息 -->
+        {% csrf_token %}
+        {% if  form.errors %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                您提交的信息有以下问题：
+                {% for field in form %}
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
+                {% endfor %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+
+        {{ form.as_p }}
+
+        <br>
+        <button class="btn btn-dark" type="submit" style="color:#FFFFFF" value="submit">提交</button>
+
+    </form>
+
+</div>
+<br><br>
+
+{% endblock %}
