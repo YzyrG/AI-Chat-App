@@ -10,7 +10,8 @@
     {% for chat in pages  %}
         <div class="card">
           <div class="card-header">
-            <strong>您的问题：{{ chat.question }}</strong>
+            <strong>您的问题：{{ chat.question }}</strong><br>
+            <small style="font-style: italic">创建时间：{{ chat.created_time }}</small>
           </div>
           <div class="card-body">
               <strong>ChatSonic的回复：</strong>{{ chat.answer | safe }}<br><br>
@@ -56,7 +57,7 @@
 <div class="col-md-6 offset-md-3">
 <h1 class="text-center">Login | 登录</h1>
 <div class="alert alert-success" role="alert">
-若未注册，请您先注册:)
+若未注册，请您先注册 :)
  </div>
 <form method='POST' action="{% url 'login' %}">
 <!-- csrf_token是为了防止csrf(跨站请求伪造)，防止黑客盗用你存在网站(cookie)上的账户密码和信息 -->

@@ -68,7 +68,7 @@ def home(request):
                 history_str = json.dumps(history_data)
 
                 # 保存到数据库
-                data = PreviousChat(question=question, answer=answer, history_str=history_str)
+                data = PreviousChat(question=question, answer=answer, history_str=history_str, owner=request.user)
                 data.save()
 
                 return render(request, 'home.html', {'task': task, 'question': question, 'answer': answer})
@@ -131,7 +131,7 @@ def home(request):
                 history_str = json.dumps(history_data)
 
                 # 保存到数据库
-                data = PreviousChat(question=question, answer=answer, history_str=history_str)
+                data = PreviousChat(question=question, answer=answer, history_str=history_str, owner=request.user)
                 data.save()
 
                 return render(request, 'home.html', {'task': task, 'question': question, 'answer': answer})
@@ -152,10 +152,10 @@ def home(request):
 
 def history(request):
     # 获取历史数据
-    history_data = PreviousChat.objects.all()
+    history_data = PreviousChat.objects.filter(owner=request.user).order_by('-created_time')
 
     # 设置页数, 煤每页展示10条历史数据
-    p = Paginator(PreviousChat.objects.all(), 10)
+    p = Paginator(history_data, 10)
     # 拿到所请求的页码
     page = request.GET.get('page')
     # 拿到所请求页码的页面内容，return时返回
@@ -209,7 +209,7 @@ def register_user(request):
             password = form.cleaned_data['password1']
             user = authenticate(username=username, password=password)
             login(request, user)
-            messages.success(request, "您已注册成功！")
+            messages.success(request, "ヾ(≧ ▽ ≦)ゝ嗨！您已注册成功！")
             return redirect('home')
     else:
         form = SignUpForm()
