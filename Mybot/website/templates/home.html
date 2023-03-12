@@ -133,8 +133,10 @@
 
 {% else %}
 <div class="col-md-6 offset-md-3">
-<h1 class="text-center">Login</h1>
-<br><br>
+<h1 class="text-center">Login | 登录</h1>
+<div class="alert alert-success" role="alert">
+若未注册，请您先注册:)
+ </div>
 <form method='POST' action="{% url 'login' %}">
 <!-- csrf_token是为了防止csrf(跨站请求伪造)，防止黑客盗用你存在网站(cookie)上的账户密码和信息 -->
 {% csrf_token %}
@@ -146,7 +148,9 @@
         <input type="text" class="form-control" placeholder="Password" name="password">
         <br>
     </div>
+    <div class="d-grid gap-2 col-2 mx-auto">
     <button class="btn btn-dark" type="submit" style="color:#FFFFFF" value="submit">提交</button>
+    </div>
 </form>
 </div>
 {%endif  %}

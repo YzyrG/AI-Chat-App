@@ -9,33 +9,32 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="{% url 'history' %}" style="color:#FFFFFF">Chat history</a>
         </li>
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="#" style="color:#FFFFFF">Write history</a>
         </li>
-      </ul>
+        </ul>
 
+        <ul class="nav justify-content-end">
+        {% if user.is_authenticated %}
+          <!-- 已验证说明用户已登录，显示logout按钮 -->
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}" style="color:#FFFFFF">Logout</a>
+            </li>
+        {% else %}
+          <!-- 已验证说明用户未登录，显示register、login按钮 -->
+            <li class="nav-item">
+            <a class="nav-link" href="{% url 'register' %}" style="color:#FFFFFF">Register</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}" style="color:#FFFFFF">Login</a>
+            </li>
+        </ul>
+        {% endif %}
     </div>
-
-    {% if user.is_authenticated %}
-      <!-- 已验证说明用户已登录，显示logout按钮 -->
-      <ul class="nav justify-content-end">
-        <li class="nav-item">
-          <a class="nav-link disabled" href="{% url 'logout' %}" style="color:#FFFFFF">Logout</a>
-        </li>
-    {% else %}
-      <!-- 已验证说明用户未登录，显示register、login按钮 -->
-        <li class="nav-item">
-        <a class="nav-link disabled" href="{% url 'register' %}" style="color:#FFFFFF">Register</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link disabled" href="{% url 'login' %}" style="color:#FFFFFF">Login</a>
-        </li>
-      </ul>
-    {% endif %}
   </div>
 </nav>
