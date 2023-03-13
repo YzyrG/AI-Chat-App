@@ -5,7 +5,7 @@
 <!-- 只给已登录用户展示主页 -->
 {% if  user.is_authenticated %}
 
-    <!-- return answer说明用户已正确填写表单并提交，此时展示提交处理后的页面 -->
+    <!-- return answer说明用户选择了聊天任务，提交后展示聊天回复 -->
     {% if answer %}
 
         <h2>您的问题：{{ question }}</h2>
@@ -46,10 +46,6 @@
                     <option>选择任务和A.I. Bot对话吧！</option>
                     <option value="继续聊天" selected>继续聊天</option>
                     <option value="帮我写作">帮我写作</option>
-                    {% elif task == '帮我写作' %}
-                    <option>选择任务和A.I. Bot对话吧！</option>
-                    <option value="陪我聊天">陪我聊天</option>
-                    <option value="帮我写作" selected>帮我写作</option>
                     {% else %}
                     <option selected>选择任务和A.I. Bot对话吧！</option>
                     <option value="陪我聊天">陪我聊天</option>
@@ -63,7 +59,7 @@
              <div class="input-group">
                     <span class="input-group-text">输入</span>
                     <!-- 提交后清空输入框  -->
-                    <textarea class="form-control" name="question" aria-label="With textarea" required></textarea>
+                    <textarea class="form-control" name="question" aria-label="With textarea" placeholder="写作任务只需要输入您感兴趣的话题即可" required></textarea>
             </div>
             <br/>
 
@@ -74,9 +70,64 @@
 
         </form>
 
+    <!-- return article说明用户选择了写作任务，提交后展示聊天回复 -->
+    {% elif article %}
+    <h2>您的话题：{{ topic }}</h2>
+            <!-- writesonic 回复框  -->
+            <div class="card">
+                  <div class="card-header">
+                   A.I. Bot 回复
+                  </div>
+                  <div class="card-body">
+                    <!-- 输入无效字符时提示 -->
+                    {% if answer == "invalid syntax (, line 1)" %}
+                        <p class="card-text">请输入有意义的文字:)</p>
+                    {% else %}
+                        <p class="card-text">标题：{{ title }}</p>
+                        <p class="card-text">概要：{{ intro }}</p>
+                        <!-- 用safe过滤器解析html -->
+                        <p class="card-text">正文</p>
+                        <p class="card-text">{{ article | safe }}</p>
+                    {% endif %}
+                    <br/> <br/>
+                  </div>
+            </div>
+            <br/><br/>
+            <!--添加表单以实现用户与表单互动-->
+            <form method=POST action="{% url 'home' %}">
+
+                <!-- csrf_token是为了防止csrf(跨站请求伪造)，防止黑客盗用你存在网站(cookie)上的账户密码和信息 -->
+                {% csrf_token %}
+
+                <!-- 选择任务 -->
+                <div class="input-group mb-3">
+
+                  <label class="input-group-text">任务</label>
+                  <select class="form-select" name="task">
+                        <option>选择任务和A.I. Bot对话吧！</option>
+                        <option value="陪我聊天">陪我聊天</option>
+                        <option value="帮我写作" selected>帮我写作</option>
+                  </select>
+
+                </div>
+
+                <!-- 需求输入区域 -->
+                 <div class="input-group">
+                        <span class="input-group-text">输入</span>
+                        <!-- 提交后清空输入框  -->
+                        <textarea class="form-control" name="question" aria-label="With textarea" placeholder="写作任务只需要输入您感兴趣的话题即可" required></textarea>
+                </div>
+                <br/>
+
+                <div class="d-grid gap-2 col-6 mx-auto">
+                    <button class="btn btn-dark" type="submit" style="color:#FFFFFF">提交</button>
+                </div>
+                <br/><br/>
+
+            </form>
 
 
-    <!-- 没有return answer说明这是第一次进该页面，展示原始页面 -->
+    <!-- 没有return answer/article 说明这是第一次进该页面，展示原始页面 -->
     {% else %}
         <!-- writesonic 回复框  -->
         <div class="card">
@@ -113,12 +164,14 @@
             <!-- 需求输入区域 -->
             <div class="input-group">
                 <span class="input-group-text">输入</span>
-                <!--  若question有值说明用户在没有选择任务的情况下提交了表单，导致没有返回answer,此时仍显示用户之前输入的内容  -->
+                <!--  若question有值说明用户在没有选择任务的情况下提交了表单，导致没有返回answer/article,此时仍显示用户之前输入的内容  -->
                 {% if question %}
                 <textarea class="form-control" name="question" aria-label="With textarea">{{ question }}</textarea>
-                <!--  若question无值，则说明用户是首次访问该页面，显示原始样式 -->
+                {% elif article %}
+                 <textarea class="form-control" name="question" aria-label="With textarea">{{ question }}</textarea>
+                <!--  若question/article无值，则说明用户是首次访问该页面，显示原始样式 -->
                 {% else %}
-                <textarea class="form-control" name="question" aria-label="With textarea" required></textarea>
+                <textarea class="form-control" name="question" aria-label="With textarea" placeholder="写作任务只需要输入您感兴趣的话题即可" required></textarea>
                 {% endif %}
             </div>
             <br/>

@@ -1,4 +1,4 @@
-from .models import PreviousChat
+from .models import PreviousChat, PreviousWriting
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -17,6 +17,9 @@ def home(request):
         question = request.POST['question']
         task = request.POST['task']
 
+        # Writesonic API KEY
+        key = os.getenv("WRITESONIC_API_KEY")
+
         if task == '选择任务和A.I. Bot对话吧！':
             messages.success(request, "你忘记选择任务了！")
             # 仍然要返回question，否则用户之前写的问题没了不太友好
@@ -27,9 +30,9 @@ def home(request):
             try:
                 # 开始新的一次聊天时历史数据为空list
                 history_data = []
-                # 以下参考Writesonic官方文档调用ChatSonic api
+
+                # ########### 以下参考Writesonic官方文档调用ChatSonic api###########
                 url = "https://api.writesonic.com/v2/business/content/chatsonic?engine=premium&language=zh"
-                key = os.getenv("WRITESONIC_API_KEY")
 
                 payload = {
                     "enable_google_results": "true",
@@ -83,16 +86,11 @@ def home(request):
 
                 # 获取数据库最后一条数据，拿到最新的history_str
                 history_str = PreviousChat.objects.last().history_str
-                print(type(history_str))
-                print(history_str)
                 # 使用json将str转换为list
                 history_data = json.loads(history_str)
-                print(type(history_data))
-                print(history_data)
 
-                # 以下参考Writesonic官方文档调用ChatSonic api
+                # ########### 以下参考Writesonic官方文档调用ChatSonic api###########
                 url = "https://api.writesonic.com/v2/business/content/chatsonic?engine=premium&language=zh"
-                key = os.getenv("WRITESONIC_API_KEY")
 
                 payload = {
                     "enable_google_results": "true",
@@ -142,14 +140,110 @@ def home(request):
         # 若用户选择帮我写作任务并提交, 则调用writesonic api处理表单数据
         elif task == '帮我写作':
             try:
-                pass
+                topic = question
+
+                # ########### 以下参考Writesonic官方文档调用WriteSonic api###########
+
+                # #####################标题#######################
+                # 先调用AI Article Idea api生成文章标题
+                url = "https://api.writesonic.com/v2/business/content/blog-ideas?engine=average&language=zh&num_copies=1"
+
+                payload = {
+                    "topic": topic
+                }
+                headers = {
+                    "accept": "application/json",
+                    "content-type": "application/json",
+                    "X-API-KEY": key
+                }
+
+                response = requests.post(url, json=payload, headers=headers)
+
+                # 使用json将str转换为list
+                response = json.loads(response.text)
+                # 获取返回的text, 即WriteSonic回复的title
+                title = response[0]['text']
+
+                # #####################概要#######################
+                # 再调用AI Article Intros api生成文章概要
+                url = "https://api.writesonic.com/v2/business/content/blog-intros?engine=average&language=zh&num_copies=1"
+
+                payload = {
+                    "blog_title": title
+                }
+                headers = {
+                    "accept": "application/json",
+                    "content-type": "application/json",
+                    "X-API-KEY": key
+                }
+
+                response = requests.post(url, json=payload, headers=headers)
+
+                # 使用json将str转换为list
+                response = json.loads(response.text)
+                # 获取返回的text, 即WriteSonic回复的introduction
+                intro = response[0]['text']
+
+                # #####################大纲#######################
+                # 再调用AI Article Outlines api 生成文章大纲
+                url = "https://api.writesonic.com/v2/business/content/blog-outlines?engine=economy&language=zh&num_copies=1"
+
+                payload = {
+                    "blog_title": title,
+                    "blog_intro": intro
+                }
+                headers = {
+                    "accept": "application/json",
+                    "content-type": "application/json",
+                    "X-API-KEY": key
+                }
+
+                response = requests.post(url, json=payload, headers=headers)
+
+                # 使用json将str转换为list
+                response = json.loads(response.text)
+                # 获取返回的text, 即WriteSonic回复的outlines字符串
+                # 返回的结果中含有#特殊字符，用replace去除
+                outlines_str = response[0]['text'].replace('#', '')
+                outlines_list = outlines_str.split('\n')
+
+                # #####################文章#######################
+                # 最后调用AI Article Writer 3.0 api生成完整文章
+                url = "https://api.writesonic.com/v2/business/content/ai-article-writer-v3?engine=average&language=zh"
+
+                payload = {
+                    "article_title": title,
+                    "article_intro": intro,
+                    "article_sections": outlines_list
+                }
+                headers = {
+                    "accept": "application/json",
+                    "content-type": "application/json",
+                    "X-API-KEY": key
+                }
+
+                response = requests.post(url, json=payload, headers=headers)
+
+                # 将返回的字符串转换为字典
+                response = eval(response.text)
+                # content_data为list类型
+                content_data = response['data']
+                content = content_data[0]['content'].replace("\n", "<br>")
+
+                # 保存到数据库
+                data = PreviousWriting(topic=topic, title=title, intro=intro, outlines=outlines_str, article=content, owner=request.user)
+                data.save()
+
+                return render(request, 'home.html', {'task': task, 'topic': topic, 'title': title, 'intro': intro, 'article': content})
+
             except Exception as e:
                 # 出错时给answer传e, 使回复区域显示error
-                return render(request, 'home.html', {'question': question, 'answer': e})
+                return render(request, 'home.html', {'topic': question, 'article': e})
 
     return render(request, 'home.html')
 
 
+# 下面的history是chat history的view
 def history(request):
     # 获取历史数据，注意owner参数需要user.id作为实参
     history_data = PreviousChat.objects.filter(owner=request.user.id).order_by('-created_time')
