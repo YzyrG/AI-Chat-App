@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- 只给已登录用户展示历史数据 -->
+{% if  user.is_authenticated %}
+<!-- 历史数据展示 -->
+{% if writing_data %}
+
+    {% for writing in pages  %}
+        <div class="card">
+          <div class="card-header">
+            <strong>您的话题：{{ writing.topic }}</strong><br>
+            <small style="font-style: italic">创建时间：{{ writing.created_time }}</small>
+          </div>
+          <div class="card-body">
+                <strong>ChatSonic的回复：</strong><br>
+                <p class="card-text">标题：{{ writing.title }}</p>
+                <p class="card-text">概要：{{ writing.intro }}</p>
+                <!-- 用safe过滤器解析html -->
+                <p class="card-text">正文</p>
+                <p class="card-text">{{ writing.article | safe }}</p>
+          </div>
+        </div><br>
+
+        <div style="text-align:center">
+        <a href="{% url 'delete_writing' writing.id %}" class="btn btn-outline-danger" >删除</a>
+        </div>
+        <br><br>
+    {% endfor %}
+
+{%endif  %}
+
+<!-- 分割线 -->
+<hr><br>
+
+<!-- 分页器 -->
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+      <li class="page-item"><a class="page-link" href="?page=1">&laquo; 首页</a></li>
+
+      {% if pages.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ pages.previous_page_number }}" aria-label="Previous">
+                <span aria-hidden="true">上页</span></a></li>
+      {% endif %}
+
+      {% for i in nums %}
+        <li class="page-item"><a class="page-link" href="?page={{ forloop.counter }}">{{ forloop.counter }}</a></li>
+      {% endfor %}
+
+      {% if pages.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ pages.next_page_number }}">下页</a></li>
+      {% endif %}
+      <li class="page-item"><a class="page-link" href="?page={{ pages.paginator.num_pages }}">末页 &raquo;</a></li>
+
+  </ul>
+</nav>
+
+<br><br>
+
+{% else %}
+<div class="col-md-6 offset-md-3">
+<h1 class="text-center">Login | 登录</h1>
+<div class="alert alert-success" role="alert">
+若未注册，请您先注册 :)
+ </div>
+<form method='POST' action="{% url 'login' %}">
+<!-- csrf_token是为了防止csrf(跨站请求伪造)，防止黑客盗用你存在网站(cookie)上的账户密码和信息 -->
+{% csrf_token %}
+    <div class="form-group">
+        <input type="text" class="form-control" placeholder="User Name" name="username">
+        <br>
+    </div>
+    <div class="form-group">
+        <input type="text" class="form-control" placeholder="Password" name="password">
+        <br>
+    </div>
+    <div class="d-grid gap-2 col-2 mx-auto">
+    <button class="btn btn-dark" type="submit" style="color:#FFFFFF" value="submit">提交</button>
+    </div>
+</form>
+</div>
+{%endif  %}
+
+{% endblock %}

@@ -268,6 +268,30 @@ def delete_history(request, history_id):
     return redirect('history')
 
 
+def writing_history(request):
+    # 获取历史数据，注意owner参数需要user.id作为实参
+    writing_data = PreviousWriting.objects.filter(owner=request.user.id).order_by('-created_time')
+
+    # 设置页数, 煤每页展示1条历史数据
+    p = Paginator(writing_data, 1)
+    # 拿到所请求的页码
+    page = request.GET.get('page')
+    # 拿到所请求页码的页面内容，return时返回
+    pages = p.get_page(page)
+
+    # 获取页数,有多少页就有多少个字符a，便于在history page遍历
+    nums = "a" * pages.paginator.num_pages
+
+    return render(request, 'writing_history.html', {"writing_data": writing_data, 'pages': pages, 'nums': nums})
+
+
+def delete_writing(request, writing_id):
+    delete_data = PreviousWriting.objects.get(id=writing_id)
+    delete_data.delete()
+    messages.success(request, "删除成功！")
+    return redirect('writing_history')
+
+
 # 以下用户注册登录验证功能参考django官方文档
 def login_user(request):
     # 获取表单数据
