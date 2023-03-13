@@ -11,6 +11,7 @@ import os
 import json
 
 
+# 主页A.I. Bot 视图
 def home(request):
     # 处理提交表单后得到的表单数据
     if request.method == "POST":
@@ -146,7 +147,7 @@ def home(request):
 
                 # #####################标题#######################
                 # 先调用AI Article Idea api生成文章标题
-                url = "https://api.writesonic.com/v2/business/content/blog-ideas?engine=average&language=zh&num_copies=1"
+                url = "https://api.writesonic.com/v2/business/content/blog-ideas?engine=average&language=en&num_copies=1"
 
                 payload = {
                     "topic": topic
@@ -166,7 +167,7 @@ def home(request):
 
                 # #####################概要#######################
                 # 再调用AI Article Intros api生成文章概要
-                url = "https://api.writesonic.com/v2/business/content/blog-intros?engine=average&language=zh&num_copies=1"
+                url = "https://api.writesonic.com/v2/business/content/blog-intros?engine=average&language=en&num_copies=1"
 
                 payload = {
                     "blog_title": title
@@ -186,7 +187,7 @@ def home(request):
 
                 # #####################大纲#######################
                 # 再调用AI Article Outlines api 生成文章大纲
-                url = "https://api.writesonic.com/v2/business/content/blog-outlines?engine=economy&language=zh&num_copies=1"
+                url = "https://api.writesonic.com/v2/business/content/blog-outlines?engine=economy&language=en&num_copies=1"
 
                 payload = {
                     "blog_title": title,
@@ -209,7 +210,7 @@ def home(request):
 
                 # #####################文章#######################
                 # 最后调用AI Article Writer 3.0 api生成完整文章
-                url = "https://api.writesonic.com/v2/business/content/ai-article-writer-v3?engine=average&language=zh"
+                url = "https://api.writesonic.com/v2/business/content/ai-article-writer-v3?engine=average&language=en"
 
                 payload = {
                     "article_title": title,
@@ -243,7 +244,7 @@ def home(request):
     return render(request, 'home.html')
 
 
-# 下面的history是chat history的view
+# 处理历史聊天记录
 def history(request):
     # 获取历史数据，注意owner参数需要user.id作为实参
     history_data = PreviousChat.objects.filter(owner=request.user.id).order_by('-created_time')
@@ -261,6 +262,7 @@ def history(request):
     return render(request, 'history.html', {"history_data": history_data, 'pages': pages, 'nums': nums})
 
 
+# 删除历史聊天记录
 def delete_history(request, history_id):
     delete_data = PreviousChat.objects.get(id=history_id)
     delete_data.delete()
@@ -268,6 +270,7 @@ def delete_history(request, history_id):
     return redirect('history')
 
 
+# 处理历史文章记录
 def writing_history(request):
     # 获取历史数据，注意owner参数需要user.id作为实参
     writing_data = PreviousWriting.objects.filter(owner=request.user.id).order_by('-created_time')
@@ -285,6 +288,7 @@ def writing_history(request):
     return render(request, 'writing_history.html', {"writing_data": writing_data, 'pages': pages, 'nums': nums})
 
 
+# 删除历史文章记录
 def delete_writing(request, writing_id):
     delete_data = PreviousWriting.objects.get(id=writing_id)
     delete_data.delete()
@@ -293,6 +297,7 @@ def delete_writing(request, writing_id):
 
 
 # 以下用户注册登录验证功能参考django官方文档
+# 用户登录
 def login_user(request):
     # 获取表单数据
     if request.method == 'POST':
@@ -312,12 +317,14 @@ def login_user(request):
         return render(request, 'home.html')
 
 
+# 用户登出
 def logout_user(request):
     logout(request)
     messages.success(request, "您已退出登录，Bye！(●'◡'●)")
     return redirect('home')
 
 
+# 用户注册
 def register_user(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
