@@ -208,7 +208,7 @@ def home(request):
 
                 # #####################文章#######################
                 # 最后调用AI Article Writer 3.0 api生成完整文章
-                url = "https://api.writesonic.com/v2/business/content/ai-article-writer-v3?engine=average&language=en"
+                url = "https://api.writesonic.com/v2/business/content/ai-article-writer-v3?engine=premium&language=en"
 
                 payload = {
                     "article_title": title,
